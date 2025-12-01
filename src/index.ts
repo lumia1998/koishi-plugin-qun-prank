@@ -300,10 +300,21 @@ export function apply(ctx: Context, config: Config) {
         result = message
       }
 
+      // Check if self-fuck
+      const isSelfFuck = session.userId === targetId
+
       // Check yangwei probability (炸膛)
       if (Math.random() < config.yangweiProbability) {
         banList.set(actorId, now + config.yangweiBanDuration * 1000)
+        if (isSelfFuck) {
+          return [result, '你牛子可真长还能自产自销啊', '💥你的牛牛炸膛了!满身疮痍,再起不能(悲)']
+        }
         return [result, '💥你的牛牛炸膛了!满身疮痍,再起不能(悲)']
+      }
+
+      // Self-fuck special message
+      if (isSelfFuck) {
+        return [result, '你牛子可真长还能自产自销啊']
       }
 
       return result
