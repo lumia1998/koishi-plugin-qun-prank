@@ -1,0 +1,33 @@
+{
+  "name": "koishi-plugin-qun-prank",
+  "version": "2.0.0",
+  "description": "A recreation of the qun-fuck plugin for Koishi.",
+  "main": "lib/index.js",
+  "typings": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "assets"
+  ],
+  "author": "YourName",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "koishi": {
+    "service": {
+      "required": [
+        "database",
+        "puppeteer"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "koishi": "^4.0.0"
+  },
+  "devDependencies": {
+    "@koishijs/client": "*",
+    "@koishijs/plugin-database-sqlite": "*",
+    "@koishijs/plugin-puppeteer": "*",
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,15 @@
+node_modules/
+lib/
+*.log
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+dist/
+coverage/
+.nyc_output/
+*.tgz
+package-lock.json
+yarn.lock
