@@ -39,7 +39,6 @@ export interface Config {
   // New features from ccb-plus
   allowSelfFuck: boolean
   whitelist: string[]
-  yangweiWindow: number
   yangweiThreshold: number
   yangweiBanDuration: number
   yangweiProbability: number
@@ -58,8 +57,7 @@ export const Config: Schema<Config> = Schema.object({
   // New configurations
   allowSelfFuck: Schema.boolean().default(false).description('是否允许自己透自己'),
   whitelist: Schema.array(String).default([]).description('白名单用户ID列表(这些用户不能被透)'),
-  yangweiWindow: Schema.number().default(60).description('阳痿系统滑动窗口时长(秒)'),
-  yangweiThreshold: Schema.number().default(3).description('窗口内最大允许操作次数'),
+  yangweiThreshold: Schema.number().default(3).description('1分钟内最大允许操作次数'),
   yangweiBanDuration: Schema.number().default(300).description('阳痿禁用时长(秒)'),
   yangweiProbability: Schema.number().min(0).max(1).default(0.1).description('炸膛触发概率(0-1)'),
 })
@@ -173,9 +171,9 @@ export function apply(ctx: Context, config: Config) {
         return `嘻嘻,你已经一滴不剩了,阳痿还剩 ${m}分${s}秒`
       }
 
-      // Sliding window rate limiting
+      // Sliding window rate limiting (1 minute window)
       const times = actionTimes.get(actorId) || []
-      const windowStart = now - config.yangweiWindow * 1000
+      const windowStart = now - 60 * 1000  // 60 seconds = 1 minute
       const recentTimes = times.filter(t => t > windowStart)
       recentTimes.push(now)
       actionTimes.set(actorId, recentTimes)
@@ -213,7 +211,7 @@ export function apply(ctx: Context, config: Config) {
 
       // Check whitelist
       if (config.whitelist.includes(targetId)) {
-        return `${targetName} 的后门被后户之神霸占了,不能透(悲`
+        return `${targetName} 的后门已经装上了成都之心,不能透(悲`
       }
 
       // Check self-fuck
