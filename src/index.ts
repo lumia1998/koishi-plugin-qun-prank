@@ -263,7 +263,7 @@ export function apply(ctx: Context, config: Config) {
       // Check counterattack probability (反击) - only for non-self-fuck
       if (!isSelfFuck && Math.random() < config.counterattackProbability) {
         banList.set(actorId, now + config.yangweiBanDuration * 1000)
-        return '🚨你再看看你的后面呢？菊花惨遭突袭，浑身酥麻无法动弹！'
+        return '🚨你再看看你的后面呢？你的菊花惨遭突袭'
       }
 
       // Create record (only if not 炸膛)
@@ -330,7 +330,7 @@ export function apply(ctx: Context, config: Config) {
       // Check if drained (被榨干) - was determined earlier
       if (isDrained) {
         banList.set(actorId, now + config.yangweiBanDuration * 1000)
-        return [result, '💀 你被榨干了！仿佛身体被吸尘器掏空，买个腰子补补吧！']
+        return [result, '💀 你被榨干了！仿佛身体被掏空，买个腰子补补吧！']
       }
 
       // Self-fuck special message
