@@ -42,6 +42,8 @@ export interface Config {
   yangweiThreshold: number
   yangweiBanDuration: number
   yangweiProbability: number
+  counterattackProbability: number
+  drainedProbability: number
 }
 
 export const Config: Schema<Config> = Schema.object({
@@ -60,6 +62,8 @@ export const Config: Schema<Config> = Schema.object({
   yangweiThreshold: Schema.number().default(3).description('1分钟内最大允许操作次数'),
   yangweiBanDuration: Schema.number().default(300).description('阳痿禁用时长(秒)'),
   yangweiProbability: Schema.number().min(0).max(1).default(0.1).description('炸膛触发概率(0-1)'),
+  counterattackProbability: Schema.number().min(0).max(1).default(0.1).description('反击触发概率(0-1)'),
+  drainedProbability: Schema.number().min(0).max(1).default(0.1).description('被榨干触发概率(0-1,仅暴击时)'),
 })
 
 declare module 'koishi' {
@@ -236,10 +240,33 @@ export function apply(ctx: Context, config: Config) {
 
       // Calculate amount
       const amount = config.minRandom + Math.random() * (config.maxRandom - config.minRandom)
-      const isCrit = Math.random() * 100 < config.critChance
+
+      // Check drained probability first (被榨干) - this will force crit
+      const isDrained = Math.random() < config.drainedProbability
+
+      // If drained, force crit; otherwise normal crit check
+      const isCrit = isDrained || (Math.random() * 100 < config.critChance)
       const finalAmount = isCrit ? amount * config.critMultiplier : amount
 
-      // Create record
+      // Check if self-fuck
+      const isSelfFuck = session.userId === targetId
+
+      // Check yangwei probability (炸膛) - before creating records
+      if (Math.random() < config.yangweiProbability) {
+        banList.set(actorId, now + config.yangweiBanDuration * 1000)
+        if (isSelfFuck) {
+          return '💥你的牛牛炸膛了!满身疮痍,再起不能(悲)'
+        }
+        return '💥你的牛牛炸膛了!满身疮痍,再起不能(悲)'
+      }
+
+      // Check counterattack probability (反击) - only for non-self-fuck
+      if (!isSelfFuck && Math.random() < config.counterattackProbability) {
+        banList.set(actorId, now + config.yangweiBanDuration * 1000)
+        return '🚨你再看看你的后面呢？菊花惨遭突袭，浑身酥麻无法动弹！'
+      }
+
+      // Create record (only if not 炸膛)
       await ctx.database.create('qun_fuck_records', {
         guildId: session.guildId,
         userId: session.userId,
@@ -300,16 +327,10 @@ export function apply(ctx: Context, config: Config) {
         result = message
       }
 
-      // Check if self-fuck
-      const isSelfFuck = session.userId === targetId
-
-      // Check yangwei probability (炸膛)
-      if (Math.random() < config.yangweiProbability) {
+      // Check if drained (被榨干) - was determined earlier
+      if (isDrained) {
         banList.set(actorId, now + config.yangweiBanDuration * 1000)
-        if (isSelfFuck) {
-          return [result, '你牛子可真长还能自产自销啊', '💥你的牛牛炸膛了!满身疮痍,再起不能(悲)']
-        }
-        return [result, '💥你的牛牛炸膛了!满身疮痍,再起不能(悲)']
+        return [result, '💀 你被榨干了！仿佛身体被吸尘器掏空，买个腰子补补吧！']
       }
 
       // Self-fuck special message
