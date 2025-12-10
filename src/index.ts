@@ -63,7 +63,7 @@ export const Config: Schema<Config> = Schema.object({
   yangweiBanDuration: Schema.number().default(300).description('阳痿禁用时长(秒)'),
   yangweiProbability: Schema.number().min(0).max(1).default(0.1).description('炸膛触发概率(0-1)'),
   counterattackProbability: Schema.number().min(0).max(1).default(0.1).description('反击触发概率(0-1)'),
-  drainedProbability: Schema.number().min(0).max(1).default(0.1).description('被榨干触发概率(0-1,仅暴击时)'),
+  drainedProbability: Schema.number().min(0).max(1).default(0.1).description('被榨干触发概率(0-1,触发时强制暴击)'),
 })
 
 declare module 'koishi' {
